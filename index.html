@@ -1,0 +1,644 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>פוקר רוסי - שולחן חברים</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --felt:#0f5132; --felt2:#0a3d26; --wood:#2b1a10; --gold:#e6b84f; --gold2:#b88a1f;
+  --ink:#f4efe3; --mute:#b9c4b4; --red:#c0392b; --card:#fbf7ec; --panel:#13241b;
+  --good:#5ecb8a; --bad:#ff7a6b;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{
+  font-family:'Heebo',system-ui,-apple-system,'Segoe UI',Arial,sans-serif;
+  background:radial-gradient(ellipse at 50% 0%,#14402b 0%,#0a1f15 70%) fixed;
+  color:var(--ink); -webkit-tap-highlight-color:transparent;
+}
+button{font-family:inherit;cursor:pointer}
+.hidden{display:none!important}
+
+/* ---------- מסך כניסה ---------- */
+#join{min-height:100%;display:flex;align-items:center;justify-content:center;padding:24px}
+.join-card{
+  width:min(420px,100%);background:var(--panel);border:1px solid #2c4a3a;border-radius:20px;
+  padding:28px 24px;box-shadow:0 20px 60px #0008;text-align:center;
+}
+.logo{font-size:44px;letter-spacing:4px;color:var(--gold);margin-bottom:4px}
+.join-card h1{margin:0 0 4px;font-size:26px;font-weight:800}
+.join-card p{margin:0 0 20px;color:var(--mute);font-size:14px}
+.field{text-align:right;margin-bottom:14px}
+.field label{display:block;font-size:13px;color:var(--mute);margin-bottom:6px}
+.field input{
+  width:100%;padding:12px 14px;border-radius:12px;border:1px solid #35563f;background:#0c1a13;
+  color:var(--ink);font-size:17px;font-family:inherit;outline:none;
+}
+.field input:focus{border-color:var(--gold)}
+.btn{
+  border:0;border-radius:12px;padding:12px 18px;font-size:16px;font-weight:600;
+  background:linear-gradient(#f0c866,var(--gold2));color:#2a1c00;
+}
+.btn:active{transform:translateY(1px)}
+.btn.ghost{background:#1d3a2b;color:var(--ink);border:1px solid #35563f}
+.btn.danger{background:#7b2a22;color:#ffe9e5}
+.btn.big{width:100%;padding:14px;font-size:18px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.err{color:var(--bad);min-height:20px;font-size:14px;margin-top:10px}
+.note{margin-top:16px;font-size:12px;color:var(--mute)}
+
+/* ---------- משחק ---------- */
+#game{display:grid;grid-template-columns:1fr 330px;gap:14px;max-width:1200px;margin:0 auto;padding:12px;min-height:100%}
+.main{min-width:0}
+.top{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.top .room{font-weight:800;font-size:18px}
+.top .room b{color:var(--gold);letter-spacing:2px}
+.spacer{flex:1}
+.chip-badge{background:#0c1a13;border:1px solid #35563f;border-radius:999px;padding:6px 14px;font-weight:600}
+.chip-badge b{color:var(--gold)}
+
+.table{
+  background:radial-gradient(ellipse at 50% 40%,var(--felt) 0%,var(--felt2) 100%);
+  border:10px solid var(--wood);border-radius:28px;box-shadow:inset 0 0 40px #0008,0 10px 30px #0006;
+  padding:16px 12px 18px;
+}
+.zone-title{text-align:center;font-size:13px;color:#cfe3d3;letter-spacing:.5px;margin-bottom:6px;min-height:18px}
+.dealer{margin-bottom:14px;padding-bottom:12px;border-bottom:1px dashed #ffffff30}
+.hand{display:flex;justify-content:center;gap:6px;direction:ltr;min-height:78px}
+.card{
+  width:50px;height:74px;border-radius:7px;background:var(--card);color:#1a1a1a;position:relative;
+  box-shadow:0 2px 6px #0007;font-weight:800;animation:deal .35s ease-out both;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1;
+}
+.card .r{font-size:22px}
+.card .s{font-size:22px;margin-top:2px}
+.card.red{color:var(--red)}
+.card.back{
+  background:repeating-linear-gradient(45deg,#7a1f2b 0 6px,#5a1620 6px 12px);border:3px solid var(--card);
+}
+.card.sm{width:38px;height:56px}
+.card.sm .r,.card.sm .s{font-size:16px}
+@keyframes deal{from{transform:translateY(-14px) scale(.9);opacity:0}to{transform:none;opacity:1}}
+.hand-name{text-align:center;margin-top:6px;font-size:13px;color:var(--gold);min-height:18px}
+.card.static{animation:none}
+.card.pick{cursor:pointer;transition:transform .15s,box-shadow .15s}
+.card.pick.sel{transform:translateY(-12px);box-shadow:0 0 0 3px var(--gold),0 6px 12px #0009}
+.seat .bn{font-size:12px;margin-top:3px;color:#e9d9a6}
+.seat .bn .delta{font-weight:600}
+.minebox{margin:4px 0 10px}
+.detail{font-size:13px;color:var(--mute);text-align:center;margin-bottom:8px}
+.sub-title{font-weight:600;margin-top:10px;color:var(--gold)}
+
+.seats{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px}
+.seat{
+  background:#00000030;border:1px solid #ffffff1f;border-radius:14px;padding:10px 8px 8px;text-align:center;position:relative;
+}
+.seat.me{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold) inset}
+.seat.off{opacity:.55}
+.seat .nm{font-weight:600;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.seat .ch{font-size:13px;color:#d5e6d8}
+.seat .ch b{color:var(--gold)}
+.seat .st{min-height:20px;font-size:12px;margin-top:4px;color:var(--mute)}
+.seat .hand{min-height:58px;margin-top:6px}
+.tag{display:inline-block;border-radius:999px;padding:1px 9px;font-size:12px;font-weight:600;background:#ffffff1a}
+.tag.win{background:#1f6b44;color:#cfffe3}
+.tag.lose{background:#7b2a22;color:#ffe0db}
+.tag.push{background:#555;color:#fff}
+.tag.fold{background:#444;color:#ddd}
+.delta.pos{color:var(--good)} .delta.neg{color:var(--bad)}
+
+.actions{margin-top:14px;background:var(--panel);border:1px solid #2c4a3a;border-radius:16px;padding:14px}
+.actions .msg{text-align:center;color:var(--mute);margin-bottom:10px;font-size:14px}
+.chips-row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:10px}
+.chipbtn{
+  width:58px;height:58px;border-radius:50%;border:4px dashed #ffffff90;color:#fff;font-weight:800;font-size:15px;
+  box-shadow:0 3px 0 #0006;
+}
+.chipbtn:disabled{opacity:.3;cursor:not-allowed}
+.chipbtn.c10{background:#2c6fbb}.chipbtn.c25{background:#2e8b57}.chipbtn.c50{background:#b5382e}.chipbtn.c100{background:#222}
+.ante-line{text-align:center;font-size:20px;margin-bottom:10px}
+.ante-line b{color:var(--gold);font-size:26px}
+.btn-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.btn-row .btn{flex:1;min-width:130px}
+.result-line{text-align:center;font-size:18px;font-weight:800;margin-bottom:6px}
+
+details.pay{margin-top:12px;background:var(--panel);border:1px solid #2c4a3a;border-radius:14px;padding:10px 14px}
+details.pay summary{cursor:pointer;font-weight:600}
+.pay table{width:100%;border-collapse:collapse;margin-top:8px;font-size:14px}
+.pay td{padding:4px 6px;border-bottom:1px solid #ffffff14}
+.pay td:last-child{text-align:left;color:var(--gold);font-weight:600}
+.pay .rules{font-size:13px;color:var(--mute);line-height:1.6;margin-top:8px}
+
+/* ---------- צד: לוח מובילים וצ'אט ---------- */
+.side{display:flex;flex-direction:column;gap:12px;min-width:0}
+.box{background:var(--panel);border:1px solid #2c4a3a;border-radius:16px;padding:12px}
+.box h3{margin:0 0 8px;font-size:15px;color:var(--gold)}
+.lb{list-style:none;margin:0;padding:0}
+.lb li{display:flex;gap:8px;align-items:center;padding:5px 0;border-bottom:1px solid #ffffff12;font-size:14px}
+.lb li:last-child{border:0}
+.lb .pos{width:20px;color:var(--mute)}
+.lb .n{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lb .v{font-weight:600;direction:ltr}
+.chat{display:flex;flex-direction:column;height:300px}
+.log{flex:1;overflow-y:auto;font-size:14px;display:flex;flex-direction:column;gap:5px;padding-bottom:6px}
+.log .sys{color:var(--mute);font-size:12px;text-align:center}
+.log .m b{color:var(--gold)}
+.chat form{display:flex;gap:6px}
+.chat input{flex:1;min-width:0;padding:9px 10px;border-radius:10px;border:1px solid #35563f;background:#0c1a13;color:var(--ink);font-family:inherit;font-size:15px;outline:none}
+.chat .btn{padding:9px 14px}
+
+#toast{
+  position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#7b2a22;color:#fff;padding:10px 18px;
+  border-radius:12px;z-index:9;box-shadow:0 6px 20px #0008;max-width:90vw;
+}
+#toast.ok{background:#1f6b44}
+
+@media (max-width:860px){
+  #game{grid-template-columns:1fr;padding:8px}
+  .card{width:44px;height:66px}
+  .card .r,.card .s{font-size:19px}
+  .chat{height:240px}
+  .table{border-width:7px;border-radius:22px}
+}
+</style>
+</head>
+<body>
+
+<!-- כניסה -->
+<div id="join">
+  <div class="join-card">
+    <div class="logo">♠ ♥ ♦ ♣</div>
+    <h1>פוקר רוסי</h1>
+    <p>שולחן משותף עם החברים. שבבים וירטואליים בלבד, בלי כסף אמיתי.</p>
+    <div class="field">
+      <label for="name">הכינוי שלך</label>
+      <input id="name" maxlength="16" autocomplete="off" placeholder="למשל: בר">
+    </div>
+    <div class="field">
+      <label for="room">קוד חדר</label>
+      <input id="room" maxlength="12" autocomplete="off" placeholder="נוצר אוטומטית">
+    </div>
+    <button class="btn big" id="enter">כניסה לשולחן</button>
+    <div class="err" id="joinErr"></div>
+    <div class="note">כדי לשחק ביחד, כולם צריכים להיכנס עם אותו קוד חדר. אפשר לשלוח קישור מתוך השולחן.</div>
+  </div>
+</div>
+
+<!-- משחק -->
+<div id="game" class="hidden">
+  <div class="main">
+    <div class="top">
+      <div class="room">חדר: <b id="roomCode"></b></div>
+      <button class="btn ghost" id="invite">העתק קישור הזמנה</button>
+      <div class="spacer"></div>
+      <div class="chip-badge">השבבים שלי: <b id="myChips">0</b></div>
+    </div>
+
+    <div class="table">
+      <div class="dealer">
+        <div class="zone-title" id="dealerTitle">הדילר</div>
+        <div class="hand" id="dealerHand"></div>
+        <div class="hand-name" id="dealerName"></div>
+      </div>
+      <div class="seats" id="seats"></div>
+    </div>
+
+    <div class="actions" id="actions"></div>
+
+    <details class="pay">
+      <summary>טבלת תשלומים וחוקים</summary>
+      <div class="sub-title">תשלום על ה-BET</div>
+      <table>
+        <tr><td>A-K / זוג</td><td>1 ל-1</td></tr>
+        <tr><td>שני זוגות</td><td>2 ל-1</td></tr>
+        <tr><td>שלשה</td><td>3 ל-1</td></tr>
+        <tr><td>סטרייט</td><td>4 ל-1</td></tr>
+        <tr><td>פלאש</td><td>5 ל-1</td></tr>
+        <tr><td>פול האוס</td><td>7 ל-1</td></tr>
+        <tr><td>רביעייה</td><td>20 ל-1</td></tr>
+        <tr><td>סטרייט פלאש</td><td>50 ל-1</td></tr>
+        <tr><td>רויאל פלאש</td><td>100 ל-1</td></tr>
+      </table>
+      <div class="sub-title">Bonus Bet (לפי 5 הקלפים הראשונים, בלי קשר לדילר)</div>
+      <table>
+        <tr><td>שלשה</td><td>5 ל-1</td></tr>
+        <tr><td>סטרייט</td><td>50 ל-1</td></tr>
+        <tr><td>פלאש</td><td>100 ל-1</td></tr>
+        <tr><td>פול האוס</td><td>150 ל-1</td></tr>
+        <tr><td>רביעייה</td><td>250 ל-1</td></tr>
+        <tr><td>סטרייט פלאש</td><td>800 ל-1</td></tr>
+        <tr><td>רויאל פלאש</td><td>1500 ל-1</td></tr>
+      </table>
+      <div class="rules">
+        1. כל שחקן מניח Ante (ואפשר גם Bonus) ומקבל 5 קלפים. הדילר מקבל 5 קלפים, ורק אחד מהם גלוי.<br>
+        2. אפשר לשלם Ante אחד כדי להחליף 1 עד 5 קלפים (DRAW), ועוד Ante אחד כדי לקבל קלף שישי (BUY). מותר גם וגם, פעם אחת מכל סוג. עם 6 קלפים נספרת היד הטובה ביותר מתוך 5.<br>
+        3. אחר כך בוחרים BET (פי 2 מה-Ante) או FOLD (מפסידים את ה-Ante ואת מה ששולם על החלפה וקלף שישי).<br>
+        4. הדילר מוכשר רק עם A-K או יד גבוהה יותר. אם הוא לא מוכשר, ה-Ante משלם 1 ל-1 וה-BET חוזר.<br>
+        5. אם הדילר מוכשר והיד שלך גבוהה יותר, ה-Ante משלם 1 ל-1 וה-BET משלם לפי הטבלה. שוויון הוא תיקו, ואם הדילר גבוה יותר מפסידים הכול.<br>
+        6. צריך להשאיר שבבים ל-BET גם אחרי תשלום על החלפה או קלף שישי. כל השחקנים משחקים מול אותו דילר.
+      </div>
+    </details>
+  </div>
+
+  <div class="side">
+    <div class="box">
+      <h3>לוח מובילים</h3>
+      <ul class="lb" id="lb"></ul>
+    </div>
+    <div class="box chat">
+      <h3>צ'אט</h3>
+      <div class="log" id="log"></div>
+      <form id="chatForm">
+        <input id="chatInput" maxlength="200" autocomplete="off" placeholder="כתוב הודעה...">
+        <button class="btn" type="submit">שלח</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="hidden"></div>
+
+<script>
+(function(){
+  const $ = (id) => document.getElementById(id);
+  const SUIT = { S:'♠', H:'♥', D:'♦', C:'♣' };
+  const RANK = { 11:'J', 12:'Q', 13:'K', 14:'A' };
+
+  let ws = null, me = null, S = null, anteAmount = 0, joinInfo = null, retry = 0, tick = null;
+  let bonusAmount = parseInt(localStorage.getItem('rp_bonus') || '0', 10) || 0;
+  const sel = new Set(); let selSig = '';
+  let animate = true, lastPhase = '';
+
+  // ---- זהות מקומית ----
+  const token = localStorage.getItem('rp_token') || (crypto.randomUUID ? crypto.randomUUID() : String(Math.random()).slice(2) + Date.now());
+  localStorage.setItem('rp_token', token);
+
+  const params = new URLSearchParams(location.search);
+  const roomFromUrl = (params.get('room') || '').toUpperCase();
+  $('name').value = localStorage.getItem('rp_name') || '';
+  $('room').value = roomFromUrl || localStorage.getItem('rp_room') || '';
+
+  function randomRoom(){
+    const abc = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    let s = ''; for (let i = 0; i < 4; i++) s += abc[Math.floor(Math.random() * abc.length)];
+    return s;
+  }
+
+  $('enter').onclick = () => {
+    const name = $('name').value.trim();
+    let room = $('room').value.trim();
+    if (!name) { $('joinErr').textContent = 'צריך להזין כינוי'; return; }
+    if (!room) room = randomRoom();
+    room = room.toUpperCase();
+    joinInfo = { name, room };
+    localStorage.setItem('rp_name', name);
+    localStorage.setItem('rp_room', room);
+    $('joinErr').textContent = '';
+    connect();
+  };
+  $('name').addEventListener('keydown', e => { if (e.key === 'Enter') $('enter').click(); });
+  $('room').addEventListener('keydown', e => { if (e.key === 'Enter') $('enter').click(); });
+
+  function connect(){
+    const proto = location.protocol === 'https:' ? 'wss' : 'ws';
+    ws = new WebSocket(`${proto}://${location.host}`);
+    ws.onopen = () => {
+      retry = 0;
+      ws.send(JSON.stringify({ type:'join', room: joinInfo.room, name: joinInfo.name, token }));
+    };
+    ws.onmessage = (ev) => {
+      const m = JSON.parse(ev.data);
+      if (m.type === 'state') {
+        me = m.you; S = m.state;
+        $('join').classList.add('hidden');
+        $('game').classList.remove('hidden');
+        history.replaceState(null, '', '?room=' + encodeURIComponent(S.code));
+        render();
+      } else if (m.type === 'error') {
+        if ($('game').classList.contains('hidden')) $('joinErr').textContent = m.text;
+        else toast(m.text);
+      }
+    };
+    ws.onclose = () => {
+      if (!joinInfo) return;
+      if ($('game').classList.contains('hidden')) return;
+      toast('החיבור נותק, מתחבר מחדש...');
+      setTimeout(connect, Math.min(1000 * ++retry, 5000));
+    };
+  }
+
+  function send(o){ if (ws && ws.readyState === 1) ws.send(JSON.stringify(o)); }
+
+  function toast(text, ok){
+    const t = $('toast');
+    t.textContent = text; t.className = ok ? 'ok' : '';
+    clearTimeout(t._h); t._h = setTimeout(() => t.classList.add('hidden'), 2600);
+  }
+
+  // ---- ציור קלפים ----
+  function cardEl(c, small){
+    const d = document.createElement('div');
+    if (!c) { d.className = 'card back' + (small ? ' sm' : '') + (animate ? '' : ' static'); return d; }
+    d.className = 'card' + (small ? ' sm' : '') + ((c.s === 'H' || c.s === 'D') ? ' red' : '') + (animate ? '' : ' static');
+    const r = document.createElement('span'); r.className = 'r'; r.textContent = RANK[c.r] || c.r;
+    const s = document.createElement('span'); s.className = 's'; s.textContent = SUIT[c.s];
+    d.append(r, s);
+    return d;
+  }
+  function fillHand(el, cards, hidden, small){
+    el.textContent = '';
+    (cards || []).forEach(c => el.appendChild(cardEl(c, small)));
+    for (let i = 0; i < (hidden || 0); i++) el.appendChild(cardEl(null, small));
+  }
+
+  const OUTCOME = {
+    win:['ניצחון','win'], lose:['הפסד','lose'], push:['תיקו','push'],
+    noqualify:['הדילר לא מוכשר','win'], fold:['Fold','fold'],
+  };
+
+  const fmt = (n) => (n > 0 ? '+' : '') + n;
+
+  function render(){
+    animate = S.phase !== lastPhase;
+    lastPhase = S.phase;
+    const meP = S.players.find(p => p.id === me);
+    $('roomCode').textContent = S.code;
+    $('myChips').textContent = meP ? meP.chips : 0;
+
+    // דילר
+    const dealerHandEl = $('dealerHand');
+    if (S.phase === 'betting') {
+      dealerHandEl.textContent = '';
+      $('dealerTitle').textContent = 'הדילר מחכה להימורים';
+      $('dealerName').textContent = '';
+    } else {
+      fillHand(dealerHandEl, S.dealer.cards, S.dealer.hidden);
+      $('dealerTitle').textContent = 'הדילר';
+      if (S.phase === 'showdown') {
+        $('dealerName').textContent = S.dealer.name + (S.dealer.qualifies ? '' : ' - לא מוכשר (פחות מ-A-K)');
+      } else $('dealerName').textContent = '';
+    }
+
+    // מושבים
+    const seats = $('seats'); seats.textContent = '';
+    const ordered = [...S.players].sort((a, b) => (a.id === me ? -1 : b.id === me ? 1 : 0));
+    ordered.forEach(p => {
+      const d = document.createElement('div');
+      d.className = 'seat' + (p.id === me ? ' me' : '') + (p.connected ? '' : ' off');
+      const nm = document.createElement('div'); nm.className = 'nm'; nm.textContent = p.name + (p.id === me ? ' (אני)' : '');
+      const ch = document.createElement('div'); ch.className = 'ch';
+      ch.innerHTML = 'שבבים: <b>' + p.chips + '</b>' + (p.bet ? ' | הימור: <b>' + p.bet + '</b>' : '');
+      const st = document.createElement('div'); st.className = 'st';
+      if (S.phase === 'showdown' && p.result) {
+        const [label, cls] = OUTCOME[p.result.outcome];
+        const t = document.createElement('span'); t.className = 'tag ' + cls; t.textContent = label;
+        const dl = document.createElement('span'); dl.className = 'delta ' + (p.result.net >= 0 ? 'pos' : 'neg');
+        dl.textContent = ' ' + fmt(p.result.net);
+        st.append(t, dl);
+      } else if (S.phase === 'betting') {
+        st.textContent = !p.connected ? 'לא מחובר' : p.confirmed ? 'מוכן' : 'ממתין להימור...';
+      } else if (S.phase === 'deciding') {
+        st.textContent = !p.inHand ? 'יושב בצד' : p.decision ? (p.decision === 'raise' ? 'העלה' : 'Fold') : 'חושב...';
+      }
+      d.append(nm, ch, st);
+      if (p.bonusResult) {
+        const bn = document.createElement('div'); bn.className = 'bn';
+        const br = p.bonusResult;
+        bn.innerHTML = 'Bonus ' + br.bet + ': ' + (br.mult > 0 ? esc(br.handName) + ' <span class="delta pos">' + fmt(br.net) + '</span>' : '<span class="delta neg">' + fmt(br.net) + '</span>');
+        d.appendChild(bn);
+      } else if (S.phase === 'betting' && p.confirmed && p.bonus) {
+        const bn = document.createElement('div'); bn.className = 'bn'; bn.textContent = 'Bonus: ' + p.bonus;
+        d.appendChild(bn);
+      }
+      if (p.hand) {
+        const h = document.createElement('div'); h.className = 'hand';
+        fillHand(h, p.hand, 0, true);
+        d.appendChild(h);
+        if (p.handName) {
+          const hn = document.createElement('div'); hn.className = 'hand-name'; hn.textContent = p.handName;
+          d.appendChild(hn);
+        }
+      }
+      seats.appendChild(d);
+    });
+
+    renderActions(meP);
+    renderBoard();
+    renderChat();
+    animate = false;
+  }
+
+  function renderActions(meP){
+    const box = $('actions'); box.textContent = '';
+    if (!meP) return;
+    clearInterval(tick);
+
+    if (S.phase === 'betting') {
+      const afford = Math.floor(meP.chips / 3);
+      if (!meP.confirmed && afford < S.minAnte) {
+        box.innerHTML = '<div class="msg">נגמרו לך השבבים.</div>';
+        const b = document.createElement('button'); b.className = 'btn big'; b.textContent = 'קבל 1000 שבבים חדשים';
+        b.onclick = () => send({ type:'rebuy' });
+        box.appendChild(b);
+        return;
+      }
+      if (meP.confirmed) {
+        const m = document.createElement('div'); m.className = 'ante-line';
+        m.innerHTML = 'ההימור שלך: <b>' + meP.bet + '</b>';
+        if (meP.bonus) m.innerHTML += ' | Bonus: <b>' + meP.bonus + '</b>';
+        const sub = document.createElement('div'); sub.className = 'msg';
+        const waiting = S.players.filter(p => p.connected && !p.confirmed && p.chips >= S.minAnte * 3).map(p => p.name);
+        sub.textContent = waiting.length ? 'ממתינים ל: ' + waiting.join(', ') : 'מחלקים...';
+        const row = document.createElement('div'); row.className = 'btn-row';
+        const cancel = document.createElement('button'); cancel.className = 'btn ghost'; cancel.textContent = 'ביטול הימור';
+        cancel.onclick = () => send({ type:'unante' });
+        const go = document.createElement('button'); go.className = 'btn'; go.textContent = 'חלק עכשיו (בלי מי שלא מוכן)';
+        go.onclick = () => send({ type:'dealnow' });
+        row.append(cancel);
+        if (waiting.length) row.append(go);
+        box.append(m, sub, row);
+        return;
+      }
+      if (anteAmount < S.minAnte || anteAmount > afford) anteAmount = Math.min(Math.max(S.minAnte, parseInt(localStorage.getItem('rp_ante') || '25', 10)), afford);
+      const msg = document.createElement('div'); msg.className = 'msg';
+      msg.textContent = 'הגדר Ante. צריך לשמור שבבים גם ל-Raise (פי 2). מקסימום אפשרי: ' + afford;
+      const row = document.createElement('div'); row.className = 'chips-row';
+      [10,25,50,100].forEach(v => {
+        const b = document.createElement('button'); b.className = 'chipbtn c' + v; b.textContent = '+' + v;
+        b.onclick = () => { anteAmount = Math.min(afford, (anteAmount < S.minAnte ? 0 : anteAmount) + v); renderActions(meP); };
+        row.appendChild(b);
+      });
+      const line = document.createElement('div'); line.className = 'ante-line';
+      line.innerHTML = 'Ante: <b>' + anteAmount + '</b>';
+      const btns = document.createElement('div'); btns.className = 'btn-row';
+      const clear = document.createElement('button'); clear.className = 'btn ghost'; clear.textContent = 'איפוס';
+      clear.onclick = () => { anteAmount = S.minAnte; renderActions(meP); };
+      const max = document.createElement('button'); max.className = 'btn ghost'; max.textContent = 'מקסימום';
+      max.onclick = () => { anteAmount = afford; renderActions(meP); };
+      const ok = document.createElement('button'); ok.className = 'btn'; ok.textContent = 'אשר הימור';
+      ok.onclick = () => {
+        localStorage.setItem('rp_ante', String(anteAmount));
+        localStorage.setItem('rp_bonus', String(bonusAmount));
+        send({ type:'ante', amount: anteAmount, bonus: bonusAmount });
+      };
+      btns.append(clear, max, ok);
+
+      // Bonus Bet (אופציונלי): משלם לפי 5 הקלפים הראשונים, בלי קשר לדילר
+      const bmax = Math.max(0, meP.chips - anteAmount * 3);
+      if (bonusAmount > bmax) bonusAmount = bmax >= S.minAnte ? Math.floor(bmax / 10) * 10 : 0;
+      const bt = document.createElement('div'); bt.className = 'sub-title msg'; bt.textContent = 'Bonus Bet (אופציונלי)';
+      const brow = document.createElement('div'); brow.className = 'chips-row';
+      [10,25,50,100].forEach(v => {
+        const b = document.createElement('button'); b.className = 'chipbtn c' + v; b.textContent = '+' + v;
+        b.disabled = bonusAmount + v > bmax;
+        b.onclick = () => { bonusAmount += v; renderActions(meP); };
+        brow.appendChild(b);
+      });
+      const bline = document.createElement('div'); bline.className = 'ante-line';
+      bline.innerHTML = 'Bonus: <b>' + bonusAmount + '</b> ';
+      const bclear = document.createElement('button'); bclear.className = 'btn ghost'; bclear.style.padding = '4px 12px'; bclear.textContent = 'בלי Bonus';
+      bclear.onclick = () => { bonusAmount = 0; renderActions(meP); };
+      bline.appendChild(bclear);
+      box.append(msg, row, line, bt, brow, bline, btns);
+      return;
+    }
+
+    if (S.phase === 'deciding') {
+      if (!meP.inHand) { box.innerHTML = '<div class="msg">הסיבוב התחיל בלעדיך. מחכים שיסתיים.</div>'; return; }
+      if (meP.decision) {
+        const waiting = S.players.filter(p => p.inHand && !p.decision).map(p => p.name);
+        box.innerHTML = '<div class="msg">' + (meP.decision === 'raise' ? 'העלית.' : 'עשית Fold.') + ' ממתינים ל: ' + esc(waiting.join(', ')) + '</div>';
+        return;
+      }
+      const sig = JSON.stringify(meP.hand);
+      if (sig !== selSig) { sel.clear(); selSig = sig; }
+      const A = meP.bet;
+      const canPay = meP.chips - A >= A * 2; // חייבים להישאר עם שבבים ל-Raise
+
+      const msg = document.createElement('div'); msg.className = 'msg';
+      msg.textContent = meP.drew && meP.bought ? 'החלפת וקנית קלף שישי. נספרת היד הטובה ביותר מ-5 קלפים.'
+        : 'לחץ על קלפים כדי לבחור להחלפה (DRAW), או קנה קלף שישי (BUY). כל פעולה עולה Ante אחד (' + A + ').';
+      const mine = document.createElement('div'); mine.className = 'hand minebox';
+      meP.hand.forEach((c, i) => {
+        const el = cardEl(c);
+        el.classList.add('pick');
+        if (sel.has(i)) el.classList.add('sel');
+        if (!meP.drew) el.onclick = () => {
+          if (sel.has(i)) sel.delete(i); else if (sel.size < 5) sel.add(i);
+          renderActions(meP);
+        };
+        mine.appendChild(el);
+      });
+      const hn = document.createElement('div'); hn.className = 'hand-name'; hn.textContent = meP.handName || '';
+
+      const row1 = document.createElement('div'); row1.className = 'btn-row';
+      const draw = document.createElement('button'); draw.className = 'btn ghost';
+      draw.textContent = meP.drew ? 'DRAW (נוצל)' : 'DRAW - החלף ' + sel.size + ' קלפים (' + A + ')';
+      draw.disabled = meP.drew || sel.size === 0 || !canPay;
+      draw.onclick = () => send({ type:'draw', indices: [...sel] });
+      const buy = document.createElement('button'); buy.className = 'btn ghost';
+      buy.textContent = meP.bought ? 'BUY (נוצל)' : 'BUY - קלף שישי (' + A + ')';
+      buy.disabled = meP.bought || !canPay;
+      buy.onclick = () => send({ type:'buy' });
+      row1.append(draw, buy);
+
+      const row2 = document.createElement('div'); row2.className = 'btn-row'; row2.style.marginTop = '10px';
+      const raise = document.createElement('button'); raise.className = 'btn'; raise.textContent = 'BET - ' + (A * 2) + ' שבבים';
+      raise.onclick = () => send({ type:'decide', action:'raise' });
+      const fold = document.createElement('button'); fold.className = 'btn danger';
+      fold.textContent = 'FOLD - מפסיד ' + (A + (meP.fees || 0));
+      fold.onclick = () => send({ type:'decide', action:'fold' });
+      row2.append(raise, fold);
+      box.append(msg, mine, hn, row1, row2);
+      return;
+    }
+
+    if (S.phase === 'showdown') {
+      const r = meP.result;
+      const line = document.createElement('div'); line.className = 'result-line';
+      if (r) {
+        const net = r.net;
+        line.innerHTML = OUTCOME[r.outcome][0] + ' | <span class="delta ' + (net >= 0 ? 'pos' : 'neg') + '">' + fmt(net) + '</span>';
+      } else line.textContent = 'הסיבוב הסתיים';
+      const parts = [];
+      if (r) {
+        parts.push('Ante/Bet: ' + fmt(r.anteNet));
+        if (r.fees) parts.push('החלפות וקלף שישי: ' + fmt(-r.fees));
+        if (r.bonusNet) parts.push('Bonus: ' + fmt(r.bonusNet));
+      }
+      const det = document.createElement('div'); det.className = 'detail'; det.textContent = parts.join(' | ');
+      const sub = document.createElement('div'); sub.className = 'msg';
+      const upd = () => { const s = Math.max(0, Math.ceil((S.nextAt - Date.now()) / 1000)); sub.textContent = 'סיבוב חדש בעוד ' + s + ' שניות'; };
+      upd(); tick = setInterval(upd, 500);
+      const row = document.createElement('div'); row.className = 'btn-row';
+      const next = document.createElement('button'); next.className = 'btn'; next.textContent = 'סיבוב חדש עכשיו';
+      next.onclick = () => send({ type:'next' });
+      row.appendChild(next);
+      box.append(line, det, sub, row);
+    }
+  }
+
+  function esc(s){ const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+  function renderBoard(){
+    const lb = $('lb'); lb.textContent = '';
+    [...S.players].sort((a, b) => b.net - a.net).forEach((p, i) => {
+      const li = document.createElement('li');
+      const pos = document.createElement('span'); pos.className = 'pos'; pos.textContent = i + 1;
+      const n = document.createElement('span'); n.className = 'n'; n.textContent = p.name + (p.id === me ? ' (אני)' : '');
+      const v = document.createElement('span'); v.className = 'v delta ' + (p.net >= 0 ? 'pos' : 'neg'); v.textContent = fmt(p.net);
+      li.append(pos, n, v); lb.appendChild(li);
+    });
+  }
+
+  let lastChatLen = -1;
+  function renderChat(){
+    const log = $('log');
+    const sig = S.chat.length + ':' + (S.chat.length ? S.chat[S.chat.length - 1].t : 0);
+    if (sig === lastChatLen) return;
+    lastChatLen = sig;
+    log.textContent = '';
+    S.chat.forEach(m => {
+      const d = document.createElement('div');
+      if (m.sys) { d.className = 'sys'; d.textContent = m.text; }
+      else {
+        d.className = 'm';
+        const b = document.createElement('b'); b.textContent = m.name + ': ';
+        d.append(b, document.createTextNode(m.text));
+      }
+      log.appendChild(d);
+    });
+    log.scrollTop = log.scrollHeight;
+  }
+
+  $('chatForm').onsubmit = (e) => {
+    e.preventDefault();
+    const v = $('chatInput').value.trim();
+    if (!v) return;
+    send({ type:'chat', text: v });
+    $('chatInput').value = '';
+  };
+
+  $('invite').onclick = async () => {
+    const link = location.origin + '/?room=' + encodeURIComponent(S.code);
+    try {
+      if (navigator.share && /Mobi|Android/i.test(navigator.userAgent)) {
+        await navigator.share({ title:'פוקר רוסי', text:'בוא לשחק פוקר רוסי איתי', url: link });
+      } else {
+        await navigator.clipboard.writeText(link);
+        toast('הקישור הועתק', true);
+      }
+    } catch (_) {
+      prompt('העתק את הקישור:', link);
+    }
+  };
+
+  // כניסה אוטומטית אם הגענו מקישור הזמנה וכבר יש כינוי שמור
+  if (roomFromUrl && $('name').value.trim()) { $('enter').click(); }
+})();
+</script>
+</body>
+</html>
